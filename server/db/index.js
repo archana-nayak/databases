@@ -1,20 +1,26 @@
-var mysql = require('mysql');
+var Sequelize  = require('Sequelize');
+var orm = new Sequelize('chat', 'root', '');//initialized with database name, username and password
 
-// Create a database connection and export it from this file.
-// You will need to connect with the user "root", no password,
-// and to the database "chat".
-var connection = mysql.createConnection(
-  {
-    user: 'root',
-    database: 'chat'
-  });
-
-connection.connect(err => {
-  if (err) {
-    throw err;
-  }
-  console.log('Connected to database ');
+//user orm to create new model objects
+var User = orm.define('user', {
+  username: Sequelize.STRING
 });
 
-module.exports = connection;
+var Message = orm.define('message', {
+  text: Sequelize.STRING,
+  roomname: Sequelize.STRING
+});
 
+//define the relationship between different model objects declared
+User.hasMany(Message);
+Message.belongsTo(User);//two-way relationship has to be provided
+//This tells it that a foreign key resides in the message that refers
+//to a column in User object
+
+
+User.sync();//synchronize the database with the schema just created
+Message.sync();
+
+
+exports.User = User;
+exports.Message = Message;
