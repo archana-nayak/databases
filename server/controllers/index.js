@@ -1,26 +1,33 @@
-var models = require('../models');
+var db = require('../db');
+  
 
-// var userFields = ['username'];
 
 module.exports = {
   messages: {
     get: function (req, res) {
-    // a function which handles a get request for all messages
-      models.messages.get(function(err, messages) {
+    // a function which handles a get request for all messages  
+      db.Message.findAll({include: db.User})//left inner join
+      .then(function(messages) {
         console.log('in controller, request', messages);
         res.json(messages);
       });
     },
     // a function which handles posting a message to the database 
     post: function (req, res) {
-      console.log('in controller ', req.body);
-      var params = [req.body['text'], 
-        req.body['username'], req.body['roomname']];
-      models.messages.post(params, function(err, results) {
-        if (err) {
-          throw err;
-        }
-        res.json(results);
+      // console.log('in controller ', req.body);
+      var param = {username: req.body['username']};
+      db.User.findOrCreate({where: param})
+      .then(function(user) {
+        var params = {
+          text: req.body['text'], 
+          userid: user.id,
+          roomname: req.body['roomname']
+        };
+        db.Message.create(params)
+        .then(function(messages) {
+          res.status(201).json(messages);
+        });
+
       });
     } 
   },
@@ -28,15 +35,16 @@ module.exports = {
   users: {
     // Ditto as above
     get: function (req, res) {
-      models.users.get(function(err, results) {
-        console.log('in controller users ', results);
-        res.json(results);//send back as json through express
-      });
+      db.User.findAll()
+      .then(function(users) {
+        res.json(users);
+      }); 
     },
     post: function (req, res) {
       var params = [req.body['username']];
-      models.users.post(params, function(err, results) {
-        res.json(results);
+      db.User.create(params)
+      .then(function(results) {
+        res.sendStatus(201);
       });
     }
   }
