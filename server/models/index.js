@@ -13,7 +13,7 @@ module.exports = {
           if (err) {
             throw err;
           }
-          callback(result);
+          callback(err, result);
         });
     }, 
     post: function (params, callback) {
@@ -24,7 +24,7 @@ module.exports = {
         if (err) {
           throw err;
         }
-        callback(result);
+        callback(err, result);
       });
     } 
   },
@@ -34,9 +34,10 @@ module.exports = {
 
     get: function (callback) {
       //get all users from the users table
-      var queryString = 'select username from users';
+      var queryString = 'select * from users';
       db.query(queryString, function(err, result) {
-        callback(result);
+        console.log('in model, get users ', result);
+        callback(err, result);
       });
     },
     //pass an array of parameter values for the insert
@@ -44,7 +45,7 @@ module.exports = {
       //add a user into the users table
       var queryString = 'insert into users (username) values (?)';
       db.query(queryString, params, function(err, result) {
-        callback(result);
+        callback(err, result);
       });
     }
   }
