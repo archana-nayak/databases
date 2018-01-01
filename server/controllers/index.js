@@ -41,7 +41,7 @@ module.exports = {
         }); 
     },
     post: function (req, res) {
-      var params = [req.body['username']];
+      var params = {username: req.body['username']};
       db.User.create(params)
         .then(function(results) {
           res.sendStatus(201);
